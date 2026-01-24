@@ -8,5 +8,7 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 Route::get('/test', function (Request $request) {
-    return "test endpoint";
+    return response()->json(["name" => "Tri stan Tryke Malubay",
+                             "section" => "BSCS - 601", "fav_song" => 
+                            "DOBIDOBIDAPDAP by Willie Revillame"]);
 });
