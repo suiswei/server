@@ -11,6 +11,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/logout', [AuthController::class, 'logout']);
 
     Route::apiResources([
-        // 'companies' => CompanyController::class,
+        'companies' => CompanyController::class,
     ]);
 });
