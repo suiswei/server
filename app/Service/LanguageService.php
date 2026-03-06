@@ -38,9 +38,9 @@ class LanguageService
         return new LanguageResource($model);
     }
 
-    public function updateLanguage(int $id, array $payload)
+    public function updateLanguage(string $uuid, array $payload)
     {
-        $model = $this->languageRepository->update($id, $payload);
+        $model = $this->languageRepository->update($uuid, $payload);
         return new LanguageResource($model);
     }
 

@@ -17,9 +17,9 @@ class LanguageRepository
         return Language::create($payload);
     }
 
-    public function findById(int $id)
+    public function findByUuid(string $uuid)
     {
-        return Language::where('id', $id)->first();
+        return Language::where('uuid', $uuid)->firstOrFail();
     }
 
     public function findByField(string $field, $value)
@@ -27,16 +27,16 @@ class LanguageRepository
         return Language::where($field, $value)->firstOrFail();
     }
 
-    public function update(int $id, array $payload)
+    public function update(string $uuid, array $payload)
     {
-        $model = $this->findById($id);
+        $model = $this->findByUuid($uuid);
         $model->update($payload);
         return $model;
     }
 
     public function delete(string $uuid)
     {
-        $model = $this->findById($uuid);
+        $model = $this->findByUuid($uuid);
         return $model->delete();
     }
 

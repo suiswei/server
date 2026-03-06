@@ -30,9 +30,9 @@ class LanguageController extends Controller
         return $this->languageService->getLanguage($uuid);
     }
 
-    public function update(Request $request, int $id)
+    public function update(Request $request, string $uuid)
     {
-        return $this->languageService->updateLanguage($id, $request->all());
+        return $this->languageService->updateLanguage($uuid, $request->all());
     }
 
     public function destroy(string $uuid)
