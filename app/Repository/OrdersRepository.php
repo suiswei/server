@@ -17,18 +17,14 @@ class OrdersRepository
         $this->customerRepository = $customerRepository;
     }
 
-    public function getCustomerOrders(int $customerId)
-    {
-        $customer = $this->customerRepository->findById($customerId);
-
-        return Order::where('customer_id', $customer->id)
-        ->with('items.product')
-        ->get();
-    }
-
     public function paginate(int $perPage = 15)
     {
         return Order::latest()->paginate($perPage);
+    }
+
+    public function create(array $payload)
+    {
+        return Order::create($payload);
     }
 
     public function findByUuid(string $uuid)
@@ -41,11 +37,21 @@ class OrdersRepository
         return Order::where($field, $value)->firstOrFail();
     }
 
-    public function update(string $uuid, array $payload)
+    public function addItem(Order $order, array $payload)
     {
-        $model = $this->findByUuid($uuid);
-        $model->update($payload);
-        return $model;
+        return $order->items()->create([
+            'product_id' => $payload['product_id'],
+            'quantity'   => $payload['quantity'],
+            'unit_price' => $payload['unit_price'],
+        ]);
+    }
+
+    public function updateTotal(Order $order, float $totalAmount)
+    {
+        $order->total_amount = $totalAmount;
+        $order->save();
+
+        return $order;
     }
 
     public function delete(string $uuid)
@@ -61,38 +67,4 @@ class OrdersRepository
         return $model;
     }
 
-    public function create(array $payload)
-    {
-        return DB::transaction(function () use ($payload) {
-
-            $totalAmount = 0;
-
-            $order = Order::create([
-                'customer_id' => $payload['customer_id'],
-                'total_amount' => 0
-            ]);
-
-            foreach ($payload['items'] as $item) {
-
-                $product = Product::findOrFail($item['product_id']);
-
-                $unitPrice = $product->price;
-                $subtotal = $unitPrice * $item['quantity'];
-
-                $order->items()->create([
-                    'product_id' => $product->id,
-                    'quantity' => $item['quantity'],
-                    'unit_price' => $unitPrice
-                ]);
-
-                $totalAmount += $unitPrice * $item['quantity'];
-            }
-
-            $order->update([
-                'total_amount' => $totalAmount
-            ]);
-
-            return $order->load('items.product');
-        });
-    }
 }

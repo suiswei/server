@@ -17,12 +17,14 @@ class OrdersResource extends JsonResource
         return [
             'order_id' => $this->id,
     
-            'customer_id' => $this->customer_id,
+            'customer_uuid' => $this->customer->uuid,
+            'customer_name' => $this->customer->name,
     
             'total_price' => $this->total_amount,
     
             'items' => $this->items->map(function ($item) {
                 return [
+                    'product_uuid' => $item->product->uuid,
                     'product_name' => $item->product->name,
                     'quantity' => $item->quantity,
                     'unit_price' => $item->unit_price,

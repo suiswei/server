@@ -12,8 +12,13 @@ class CustomerResource extends JsonResource
      *
      * @return array<string, mixed>
      */
+
     public function toArray(Request $request): array
     {
-        return parent::toArray($request);
+        $data = parent::toArray($request);
+
+        $data['items'] = OrdersResource::collection($this->whenLoaded('items'));
+
+        return $data;
     }
 }

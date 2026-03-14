@@ -17,14 +17,12 @@ class CustomerRepository
         return Customer::create($payload);
     }
 
-    // public function findById(string $Id)
-    // {
-    //     return Customer::where('Id', $Id)->firstOrFail();
-    // }
-
-    public function findById(int $id)
+    public function findByUuid(string $uuid)
     {
-        return Customer::findOrFail($id);
+        return Customer::with(['orders.items.product'])
+        ->where('uuid', $uuid)
+        ->firstOrFail();
+        // return Customer::where('uuid', $uuid)->firstOrFail();
     }
 
     public function findByField(string $field, $value)
