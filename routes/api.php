@@ -5,7 +5,7 @@ use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CustomerController;
-use App\Http\Controllers\OrderController;
+use App\Http\Controllers\OrdersController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -16,7 +16,7 @@ Route::apiResources([
     'languages' => LanguageController::class,
     'products' => ProductController::class,
     'customers' => CustomerController::class,
-    'orders' => OrderController::class,
+    'orders' => OrdersController::class,
 ]);
 
 Route::middleware('auth:sanctum')->group(function () {

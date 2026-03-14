@@ -2,29 +2,43 @@
 
 namespace App\Repository;
 
-use App\Models\Orders;
+use App\Models\Order;
+use App\Models\Product;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use App\Repository\CustomerRepository;
 
 class OrdersRepository
 {
-    public function paginate(int $perPage = 15)
+    protected $customerRepository;
+
+    public function __construct(CustomerRepository $customerRepository)
     {
-        return Orders::latest()->paginate($perPage);
+        $this->customerRepository = $customerRepository;
     }
 
-    public function create(array $payload)
+    public function getCustomerOrders(int $customerId)
     {
-        return Orders::create($payload);
+        $customer = $this->customerRepository->findById($customerId);
+
+        return Order::where('customer_id', $customer->id)
+        ->with('items.product')
+        ->get();
+    }
+
+    public function paginate(int $perPage = 15)
+    {
+        return Order::latest()->paginate($perPage);
     }
 
     public function findByUuid(string $uuid)
     {
-        return Orders::where('uuid', $uuid)->firstOrFail();
+        return Order::where('uuid', $uuid)->firstOrFail();
     }
 
     public function findByField(string $field, $value)
     {
-        return Orders::where($field, $value)->firstOrFail();
+        return Order::where($field, $value)->firstOrFail();
     }
 
     public function update(string $uuid, array $payload)
@@ -42,8 +56,43 @@ class OrdersRepository
 
     public function restore(string $uuid)
     {
-        $model = Orders::withTrashed()->where('uuid', $uuid)->firstOrFail();
+        $model = Order::withTrashed()->where('uuid', $uuid)->firstOrFail();
         $model->restore();
         return $model;
+    }
+
+    public function create(array $payload)
+    {
+        return DB::transaction(function () use ($payload) {
+
+            $totalAmount = 0;
+
+            $order = Order::create([
+                'customer_id' => $payload['customer_id'],
+                'total_amount' => 0
+            ]);
+
+            foreach ($payload['items'] as $item) {
+
+                $product = Product::findOrFail($item['product_id']);
+
+                $unitPrice = $product->price;
+                $subtotal = $unitPrice * $item['quantity'];
+
+                $order->items()->create([
+                    'product_id' => $product->id,
+                    'quantity' => $item['quantity'],
+                    'unit_price' => $unitPrice
+                ]);
+
+                $totalAmount += $unitPrice * $item['quantity'];
+            }
+
+            $order->update([
+                'total_amount' => $totalAmount
+            ]);
+
+            return $order->load('items.product');
+        });
     }
 }

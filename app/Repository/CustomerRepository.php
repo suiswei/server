@@ -17,9 +17,14 @@ class CustomerRepository
         return Customer::create($payload);
     }
 
-    public function findByUuid(string $uuid)
+    // public function findById(string $Id)
+    // {
+    //     return Customer::where('Id', $Id)->firstOrFail();
+    // }
+
+    public function findById(int $id)
     {
-        return Customer::where('uuid', $uuid)->firstOrFail();
+        return Customer::findOrFail($id);
     }
 
     public function findByField(string $field, $value)
